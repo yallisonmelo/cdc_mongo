@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:4.4.3
+    container_name: 'mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=customer
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root123
+      - MONGO_REPLICA_SET_NAME=rs0
+    command: --replSet rs0
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo -u root -p root123 --quiet) -eq 1
+      interval: 10s
+      start_period: 30s
+    restart: always
+    volumes:
+      - ./mongo-volume:/data/db
+    ports:
+      - '27017-27019:27017-27019'
